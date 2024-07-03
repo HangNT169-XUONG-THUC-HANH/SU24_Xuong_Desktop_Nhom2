@@ -27,7 +27,7 @@ public class KhachHang {
     // entity => Chua cac class giong y si trong CSDL 
     // Chi can mapping cac thuoc tinh vao entity
     // Khong duoc phep khai bao bien hang loat
-    private Integer id;
+   private Integer id;
     
     private String ma;
     
@@ -39,13 +39,18 @@ public class KhachHang {
     
     private Date ngaySinh;
     
-    private String sdt;
+    private String soDienThoai;
     
     private String diaChi;
     
     private String thanhPho;
     
+    private String quocGia;
+    
     private String matKhau;
     
     private Integer trangThai;
+    
+    private Boolean gioiTinh;
+    
 }

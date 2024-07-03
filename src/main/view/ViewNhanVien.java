@@ -30,7 +30,7 @@ public class ViewNhanVien extends javax.swing.JFrame {
         btnThem = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tbKhachHang = new javax.swing.JTable();
+        tbNhanVien = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         txtMa = new javax.swing.JTextField();
         btnSua = new javax.swing.JButton();
@@ -55,7 +55,7 @@ public class ViewNhanVien extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 24)); // NOI18N
         jLabel1.setText("Quản lý nhân viên");
 
-        tbKhachHang.setModel(new javax.swing.table.DefaultTableModel(
+        tbNhanVien.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -66,7 +66,7 @@ public class ViewNhanVien extends javax.swing.JFrame {
                 "STT", "Mã", "Tên", "SĐT", "Địa chỉ", "Tên chức vụ", "Giới tính"
             }
         ));
-        jScrollPane2.setViewportView(tbKhachHang);
+        jScrollPane2.setViewportView(tbNhanVien);
 
         jLabel2.setText("Mã");
 
@@ -248,7 +248,7 @@ public class ViewNhanVien extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JRadioButton rdNam;
     private javax.swing.JRadioButton rdNu;
-    private javax.swing.JTable tbKhachHang;
+    private javax.swing.JTable tbNhanVien;
     private javax.swing.JTextArea txtDiaChi;
     private javax.swing.JTextField txtMa;
     private javax.swing.JTextField txtSDT;

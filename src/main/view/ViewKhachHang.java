@@ -53,6 +53,7 @@ public class ViewKhachHang extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -103,9 +104,11 @@ public class ViewKhachHang extends javax.swing.JFrame {
 
         jLabel6.setText("Giới tính");
 
+        buttonGroup1.add(rdNam);
         rdNam.setSelected(true);
         rdNam.setText("Nam");
 
+        buttonGroup1.add(rdNu);
         rdNu.setText("Nữ");
 
         jLabel2.setText("Mã");
@@ -220,20 +223,52 @@ public class ViewKhachHang extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tbKhachHangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbKhachHangMouseClicked
-
+        detailKhachHang(tbKhachHang.getSelectedRow());
     }//GEN-LAST:event_tbKhachHangMouseClicked
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
-
+        KhachHang kh = repo.getAll().get(tbKhachHang.getSelectedRow());
+        repo.update(getFormData(), kh.getId());
+        showDataTable(repo.getAll());
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
-
+        KhachHang kh = repo.getAll().get(tbKhachHang.getSelectedRow());
+        repo.delete(kh.getId());
+        showDataTable(repo.getAll());
     }//GEN-LAST:event_btnXoaActionPerformed
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
-
+        repo.add(getFormData());
+        showDataTable(repo.getAll());
     }//GEN-LAST:event_btnThemActionPerformed
+
+    private void detailKhachHang(int index) {
+        KhachHang kh = repo.getAll().get(index);
+        txtDiaChi.setText(kh.getDiaChi());
+        txtMa.setText(kh.getMa());
+        txtSDT.setText(kh.getSoDienThoai());
+        txtTen.setText(kh.getTen());
+        // if else => toan !
+        rdNam.setSelected(kh.getGioiTinh());
+        rdNu.setSelected(!kh.getGioiTinh());
+    }
+
+    // tach ham chung 
+    // => Lay thong tin cua doi tuong khach hang tren form giao din
+    private KhachHang getFormData() {
+        // builder => lombox
+        KhachHang kh = KhachHang.builder()
+                .gioiTinh(rdNam.isSelected())
+                .ma(txtMa.getText())
+                .ten(txtTen.getText())
+                .diaChi(txtDiaChi.getText())
+                .soDienThoai(txtSDT.getText())
+                .build();
+        // tuong ung : contructor khong tham so 
+//        KhachHang kh1 = new KhachHang();
+        return kh;
+    }
 
     /**
      * @param args the command line arguments
@@ -275,6 +310,7 @@ public class ViewKhachHang extends javax.swing.JFrame {
     private javax.swing.JButton btnSua;
     private javax.swing.JButton btnThem;
     private javax.swing.JButton btnXoa;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -4,19 +4,44 @@
  */
 package main.view;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.table.DefaultTableModel;
+import main.repository.NhanVienRepository;
+import main.response.NhanVienResponse;
+
 /**
  *
  * @author hangnt
  */
 public class ViewNhanVien extends javax.swing.JFrame {
 
+    private DefaultTableModel dtm;
+
+    private NhanVienRepository nvRepo;
+
+    // 1. Hoa don - Load table hoa don 
+    // 2. Ban hang - Load table hoa don + load table san pham
     /**
      * Creates new form NewJFrame
      */
     public ViewNhanVien() {
         initComponents();
+        nvRepo = new NhanVienRepository();
+        dtm = (DefaultTableModel) tbNhanVien.getModel();
+        showDataTable(nvRepo.getAll());
     }
-    
+
+    private void showDataTable(ArrayList<NhanVienResponse> lists) {
+        dtm.setRowCount(0);
+        AtomicInteger index = new AtomicInteger(1); // Khoi tao 1 gia tri bat dau bang 1 de tu dong tang
+        // for..each + lamda 
+        lists.forEach(s -> dtm.addRow(new Object[]{
+            index.getAndIncrement(), s.getMa(), s.getHoVaTen(), s.getGioiTinh(), s.getSdt(),
+            s.getDiaChi(), s.getTenChucVu()
+        }));
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

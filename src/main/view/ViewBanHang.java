@@ -4,10 +4,6 @@
  */
 package main.view;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.table.DefaultTableModel;
-
 /**
  *
  * @author hangnt

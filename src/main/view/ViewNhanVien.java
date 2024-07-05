@@ -6,7 +6,11 @@ package main.view;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
+import main.entity.ChucVu;
+import main.entity.NhanVien;
+import main.repository.ChucVuRepository;
 import main.repository.NhanVienRepository;
 import main.response.NhanVienResponse;
 
@@ -18,7 +22,11 @@ public class ViewNhanVien extends javax.swing.JFrame {
 
     private DefaultTableModel dtm;
 
+    private DefaultComboBoxModel dcbm;
+
     private NhanVienRepository nvRepo;
+
+    private ChucVuRepository cvRepo;
 
     // 1. Hoa don - Load table hoa don 
     // 2. Ban hang - Load table hoa don + load table san pham
@@ -28,8 +36,11 @@ public class ViewNhanVien extends javax.swing.JFrame {
     public ViewNhanVien() {
         initComponents();
         nvRepo = new NhanVienRepository();
+        cvRepo = new ChucVuRepository();
         dtm = (DefaultTableModel) tbNhanVien.getModel();
+        dcbm = (DefaultComboBoxModel) cbbChucVu.getModel();
         showDataTable(nvRepo.getAll());
+        showComboboxModel();
     }
 
     private void showDataTable(ArrayList<NhanVienResponse> lists) {
@@ -37,9 +48,14 @@ public class ViewNhanVien extends javax.swing.JFrame {
         AtomicInteger index = new AtomicInteger(1); // Khoi tao 1 gia tri bat dau bang 1 de tu dong tang
         // for..each + lamda 
         lists.forEach(s -> dtm.addRow(new Object[]{
-            index.getAndIncrement(), s.getMa(), s.getHoVaTen(), s.getGioiTinh(), s.getSdt(),
+            index.getAndIncrement(), s.getMa(), s.getHoVaTen(), s.getSdt(),
             s.getDiaChi(), s.getTenChucVu()
         }));
+    }
+
+    private void showComboboxModel() {
+        dcbm.removeAllElements();
+        cvRepo.getAll().forEach(cv -> dcbm.addElement(cv.getMa()));
     }
 
     /**
@@ -76,6 +92,11 @@ public class ViewNhanVien extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnThem.setText("Thêm");
+        btnThem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnThemActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 24)); // NOI18N
         jLabel1.setText("Quản lý nhân viên");
@@ -91,13 +112,28 @@ public class ViewNhanVien extends javax.swing.JFrame {
                 "STT", "Mã", "Tên", "SĐT", "Địa chỉ", "Tên chức vụ", "Giới tính"
             }
         ));
+        tbNhanVien.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbNhanVienMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tbNhanVien);
 
         jLabel2.setText("Mã");
 
         btnSua.setText("Sửa");
+        btnSua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSuaActionPerformed(evt);
+            }
+        });
 
         btnXoa.setText("Xoá");
+        btnXoa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnXoaActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Tên");
 
@@ -212,7 +248,69 @@ public class ViewNhanVien extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
+        int index = tbNhanVien.getSelectedRow();
+        NhanVienResponse nv = nvRepo.getAll().get(index);
+        nvRepo.remove(nv.getId());
+        showDataTable(nvRepo.getAll());
+    }//GEN-LAST:event_btnXoaActionPerformed
+
+    private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
+        // chuyen doi NhanVienResponse -> NhanVien 
+        nvRepo.add(convertResponseToEntity(getFormData()));
+        showDataTable(nvRepo.getAll());
+    }//GEN-LAST:event_btnThemActionPerformed
+
+    private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
+        int index = tbNhanVien.getSelectedRow();
+        NhanVienResponse nv = nvRepo.getAll().get(index);
+        nvRepo.update(nv.getId(), convertResponseToEntity(getFormData()));
+        showDataTable(nvRepo.getAll());
+    }//GEN-LAST:event_btnSuaActionPerformed
+
+    private void tbNhanVienMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbNhanVienMouseClicked
+        detailNhanVien(tbNhanVien.getSelectedRow());
+    }//GEN-LAST:event_tbNhanVienMouseClicked
+
+    private void detailNhanVien(int index) {
+        NhanVienResponse nv = nvRepo.getAll().get(index);
+        txtDiaChi.setText(nv.getDiaChi());
+        txtTen.setText(nv.getHoVaTen());
+        txtSDT.setText(nv.getSdt());
+        txtMa.setText(nv.getMa());
+        cbbChucVu.setSelectedItem(nv.getMaChucVu());
+        rdNam.setSelected(nv.getGioiTinh().equals("Nam"));
+        rdNu.setSelected(!nv.getGioiTinh().equals("Nam"));
+    }
+
+    private NhanVienResponse getFormData() {
+        return NhanVienResponse.builder()
+                .ma(txtMa.getText())
+                .hoVaTen(txtTen.getText())
+                .sdt(txtSDT.getText())
+                .diaChi(txtDiaChi.getText())
+                //                String gt ="";
+                //                if(rdNam.isSelected() == true){
+                //                    gt ="Nam";
+                //                }
+                .gioiTinh(rdNam.isSelected() == true ? "Nam" : "Nữ") // toan tu 3 ngoi
+                .maChucVu(cbbChucVu.getSelectedItem().toString())
+                .build();
+    }
+
+    private NhanVien convertResponseToEntity(NhanVienResponse response) {
+        ChucVu cv = cvRepo.getChucVuByMa(response.getMaChucVu());
+        return NhanVien.builder()
+                .ma(response.getMa())
+                .ten(response.getHoVaTen())
+                .gioiTinh(response.getGioiTinh())
+                .diaChi(response.getDiaChi())
+                .idCV(cv.getId()) // lay ra ID cua chuc vu dua vao ma chuc vu 
+                .build();
+    }
 
     /**
      * @param args the command line arguments
@@ -239,6 +337,30 @@ public class ViewNhanVien extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ViewNhanVien.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>

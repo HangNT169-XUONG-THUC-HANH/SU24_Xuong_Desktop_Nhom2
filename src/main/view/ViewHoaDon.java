@@ -7,7 +7,9 @@ package main.view;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.table.DefaultTableModel;
+import main.repository.HoaDonChiTietRepository;
 import main.repository.HoaDonRepository;
+import main.response.HoaDonChiTietResponse;
 import main.response.HoaDonResponse;
 
 /**
@@ -15,11 +17,13 @@ import main.response.HoaDonResponse;
  * @author hangnt
  */
 public class ViewHoaDon extends javax.swing.JFrame {
-
+    
     private final HoaDonRepository hoaDonRepository;
-
+    
+    private final HoaDonChiTietRepository hoaDonChiTietRepository;
+    
     private final DefaultTableModel dtmHoaDon;
-
+    
     private final DefaultTableModel dtmHoaDonChiTiet;
 
     /**
@@ -28,17 +32,28 @@ public class ViewHoaDon extends javax.swing.JFrame {
     public ViewHoaDon() {
         initComponents();
         hoaDonRepository = new HoaDonRepository();
+        hoaDonChiTietRepository = new HoaDonChiTietRepository();
         dtmHoaDon = (DefaultTableModel) tbHoaDon.getModel();
         dtmHoaDonChiTiet = (DefaultTableModel) tbHoaDonChiTiet.getModel();
         showTableHoaDon(hoaDonRepository.getAll());
     }
-
+    
     private void showTableHoaDon(ArrayList<HoaDonResponse> lists) {
         dtmHoaDon.setRowCount(0);
         AtomicInteger index = new AtomicInteger(1);
         lists.forEach(s -> dtmHoaDon.addRow(new Object[]{
             index.getAndIncrement(), s.getMa(), s.getMaNhanVien(),
             s.getTenKhachHang(), s.getTongTien(), s.getTrangThai()
+        }));
+    }
+    
+    private void showTableHoaDonChiTiet(ArrayList<HoaDonChiTietResponse> lists) {
+        dtmHoaDonChiTiet.setRowCount(0);
+        AtomicInteger index = new AtomicInteger(1);
+        lists.forEach(s -> dtmHoaDonChiTiet.addRow(new Object[]{
+            index.getAndIncrement(), s.getMaSP(), s.getTenSP(), s.getDonGia(),
+            s.getSoLuong(), s.getThanhTien(), s.getNamBaoHanh(), s.getMoTa(),
+            s.getTenMauSac(), s.getTenNSX(), s.getTenDongSanPham()
         }));
     }
 
@@ -165,11 +180,13 @@ public class ViewHoaDon extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tbHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbHoaDonMouseClicked
-
+        int id = hoaDonRepository.getAll().get(tbHoaDon.getSelectedRow()).getId();
+        showTableHoaDonChiTiet(hoaDonChiTietRepository.getAll(id));
     }//GEN-LAST:event_tbHoaDonMouseClicked
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-
+        showTableHoaDon(hoaDonRepository.search(txtSearch.getText(),
+                cbbTrangThai.getSelectedIndex()));
     }//GEN-LAST:event_btnSearchActionPerformed
 
     /**
@@ -197,6 +214,12 @@ public class ViewHoaDon extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ViewHoaDon.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 

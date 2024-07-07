@@ -4,17 +4,42 @@
  */
 package main.view;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.table.DefaultTableModel;
+import main.repository.HoaDonRepository;
+import main.response.HoaDonResponse;
+
 /**
  *
  * @author hangnt
  */
 public class ViewHoaDon extends javax.swing.JFrame {
 
+    private final HoaDonRepository hoaDonRepository;
+
+    private final DefaultTableModel dtmHoaDon;
+
+    private final DefaultTableModel dtmHoaDonChiTiet;
+
     /**
      * Creates new form ViewHoaDon
      */
     public ViewHoaDon() {
         initComponents();
+        hoaDonRepository = new HoaDonRepository();
+        dtmHoaDon = (DefaultTableModel) tbHoaDon.getModel();
+        dtmHoaDonChiTiet = (DefaultTableModel) tbHoaDonChiTiet.getModel();
+        showTableHoaDon(hoaDonRepository.getAll());
+    }
+
+    private void showTableHoaDon(ArrayList<HoaDonResponse> lists) {
+        dtmHoaDon.setRowCount(0);
+        AtomicInteger index = new AtomicInteger(1);
+        lists.forEach(s -> dtmHoaDon.addRow(new Object[]{
+            index.getAndIncrement(), s.getMa(), s.getMaNhanVien(),
+            s.getTenKhachHang(), s.getTongTien(), s.getTrangThai()
+        }));
     }
 
     /**
@@ -29,9 +54,9 @@ public class ViewHoaDon extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tbHoaDonChiTiet = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
+        txtSearch = new javax.swing.JTextField();
+        cbbTrangThai = new javax.swing.JComboBox<>();
+        btnSearch = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tbHoaDon = new javax.swing.JTable();
@@ -54,9 +79,14 @@ public class ViewHoaDon extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
         jLabel1.setText("Danh sách chi tiết hoá đơn");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbbTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chưa thanh toán", "Đã thanh toán" }));
 
-        jButton1.setText("Search");
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 24)); // NOI18N
         jLabel2.setText("Quản lý hoá đơn");
@@ -80,6 +110,11 @@ public class ViewHoaDon extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tbHoaDon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tbHoaDonMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tbHoaDon);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -94,11 +129,11 @@ public class ViewHoaDon extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(41, 41, 41)
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbbTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(75, 75, 75)
-                                .addComponent(jButton1))
+                                .addComponent(btnSearch))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 644, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(276, 276, 276)
@@ -112,10 +147,10 @@ public class ViewHoaDon extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton1)))
+                        .addComponent(cbbTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnSearch)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
@@ -126,7 +161,16 @@ public class ViewHoaDon extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tbHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbHoaDonMouseClicked
+
+    }//GEN-LAST:event_tbHoaDonMouseClicked
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+
+    }//GEN-LAST:event_btnSearchActionPerformed
 
     /**
      * @param args the command line arguments
@@ -157,22 +201,20 @@ public class ViewHoaDon extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ViewHoaDon().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new ViewHoaDon().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JComboBox<String> cbbTrangThai;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTable tbHoaDon;
     private javax.swing.JTable tbHoaDonChiTiet;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

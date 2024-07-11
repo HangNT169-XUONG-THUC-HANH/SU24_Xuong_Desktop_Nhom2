@@ -8,8 +8,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import main.config.DBConnect;
+import main.entity.HoaDon;
 import main.response.HoaDonChiTietResponse;
+import main.util.Helper;
 
 /**
  *
@@ -59,5 +62,28 @@ public class HoaDonChiTietRepository {
             e.printStackTrace(System.out); // nem loi khi xay ra 
         }
         return lists;
+    }
+      public boolean add(HoaDonChiTietResponse response) {
+
+        int check = 0;
+
+        String sql = """
+                    INSERT INTO HoaDonChiTiet
+                        (IdHoaDon, IdChiTietSP, SoLuong, DonGia)
+                     VALUES(?,?,?,?);
+                    """;
+        try (Connection con = DBConnect.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            // Object la cha cua cac loai kieu du lieu 
+            ps.setObject(1, response.getHoaDonID());
+            ps.setObject(2, response.getCtspID()); // Nhan vien lay tu login
+            ps.setObject(3, response.getSoLuong());
+            ps.setObject(4, response.getDonGia());
+
+            check = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+
+        return check > 0;
     }
 }

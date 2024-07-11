@@ -91,6 +91,24 @@ public class SanPhamChiTietRepository {
         return lists;
     }
 
+     public boolean updateSoLuong(SanPhamChiTietResponse response) {
+        int check = 0;
+        String sql = """
+                     UPDATE XUONG_LEVEL1_DESKTOP.dbo.ChiTietSP
+                        SET SoLuongTon = ?
+                    WHERE Id=?;
+                     """;
+        try (Connection con = DBConnect.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setObject(1, response.getSoLuong());
+            ps.setObject(2, response.getId());
+            check = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return check > 0;
+
+    }
     public static void main(String[] args) {
 //        System.out.println(new SanPhamChiTietRepository().search("a"));
         new SanPhamChiTietRepository().search("a").forEach(s->System.out.println(s));

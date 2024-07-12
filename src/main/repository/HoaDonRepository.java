@@ -24,7 +24,7 @@ public class HoaDonRepository {
         String sql = """
                    SELECT  hd.Id ,hd.IdKH ,hd.IdNV ,
                      hd.TinhTrang ,hd.TongTien ,hd.Ma,
-                     kh.Ma ,kh.Ten ,nv.Ma ,nv.Ten 
+                     kh.Ma ,kh.Ten ,nv.Ma ,nv.Ten, hd.NgayTao 
                    FROM HoaDon hd ,KhachHang kh ,
                      NhanVien nv 
                    WHERE  hd.IdKH  = kh.Id 
@@ -169,7 +169,7 @@ public class HoaDonRepository {
         return lists;
     }
 
-     public boolean add(HoaDon hoaDon) {
+    public boolean add(HoaDon hoaDon) {
 
         int check = 0;
 
@@ -192,6 +192,49 @@ public class HoaDonRepository {
             e.printStackTrace(System.out);
         }
 
+        return check > 0;
+    }
+
+    public boolean updateTongTien(Double tongTien, Integer id) {
+
+        int check = 0;
+
+        String sql = """
+                    UPDATE XUONG_LEVEL1_DESKTOP.dbo.HoaDon
+                        SET  TongTien=?
+                      WHERE Id=?;
+                    """;
+        try (Connection con = DBConnect.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            // Object la cha cua cac loai kieu du lieu 
+            ps.setObject(1, tongTien);
+            ps.setObject(2, id);
+            check = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return check > 0;
+    }
+     public boolean updateThongTin(HoaDonResponse response) {
+
+        int check = 0;
+
+        String sql = """
+                      UPDATE XUONG_LEVEL1_DESKTOP.dbo.HoaDon
+                        SET  TinhTrang=1, TenNguoiNhan=?, DiaChi=?, Sdt=?
+                      WHERE Id=?;
+                    """;
+        try (Connection con = DBConnect.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            // Object la cha cua cac loai kieu du lieu 
+            ps.setObject(1, response.getTenKhachHang());
+            ps.setObject(2, response.getDiaChiNguoiNhan());
+            ps.setObject(3, response.getSdtNguoiNhan());
+            ps.setObject(4, response.getId());
+            check = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
         return check > 0;
     }
 }

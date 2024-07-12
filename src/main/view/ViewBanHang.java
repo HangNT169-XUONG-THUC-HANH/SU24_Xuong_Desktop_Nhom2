@@ -21,19 +21,19 @@ import main.response.SanPhamChiTietResponse;
  * @author hangnt
  */
 public class ViewBanHang extends javax.swing.JFrame {
-    
+
     private HoaDonRepository hoaDonRepository;
-    
+
     private SanPhamChiTietRepository sanPhamChiTietRepository;
-    
+
     private DefaultTableModel dtmHoaDon;
-    
+
     private DefaultTableModel dtmSanPham;
-    
+
     private DefaultTableModel dtmHoaDonChiTiet;
-    
+
     private Integer indexHoaDonSelected;
-    
+
     private HoaDonChiTietRepository hoaDonChiTietRepository;
 
     /**
@@ -44,17 +44,17 @@ public class ViewBanHang extends javax.swing.JFrame {
         hoaDonRepository = new HoaDonRepository();
         hoaDonChiTietRepository = new HoaDonChiTietRepository();
         sanPhamChiTietRepository = new SanPhamChiTietRepository();
-        
+
         dtmHoaDon = (DefaultTableModel) tbHoaDon.getModel();
         dtmSanPham = (DefaultTableModel) tbSanPham.getModel();
         dtmHoaDonChiTiet = (DefaultTableModel) tbHoaDonChiTiet.getModel();
-        
+
         showTableHoaDon(hoaDonRepository.getAllByStatus());
         showTableSanPham(sanPhamChiTietRepository.getAll());
-        
+
         indexHoaDonSelected = tbHoaDon.getSelectedRow(); // Lay ra dong ma dang chon trong bang hoa don
     }
-    
+
     private void showTableSanPham(ArrayList<SanPhamChiTietResponse> lists) {
         dtmSanPham.setRowCount(0);
         AtomicInteger index = new AtomicInteger(1);
@@ -67,16 +67,16 @@ public class ViewBanHang extends javax.swing.JFrame {
             s.getTenNSX(), s.getTenDongSanPham()
         }));
     }
-    
+
     private void showTableHoaDon(ArrayList<HoaDonResponse> lists) {
         dtmHoaDon.setRowCount(0);
         AtomicInteger index = new AtomicInteger(1);
         lists.forEach(s -> dtmHoaDon.addRow(new Object[]{
             index.getAndIncrement(), s.getMa(), s.getMaNhanVien(),
-            s.getTenKhachHang(), s.getTongTien(), s.getTrangThai()
+            s.getTenKhachHang(), s.getTongTien(), s.getNgayTao()
         }));
     }
-    
+
     private void showTableHoaDonChiTiet(ArrayList<HoaDonChiTietResponse> lists) {
         dtmHoaDonChiTiet.setRowCount(0);
         AtomicInteger index = new AtomicInteger(1);
@@ -384,13 +384,28 @@ public class ViewBanHang extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTaoHoaDonActionPerformed
 
     private void btnThanhToanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThanhToanActionPerformed
-
+        // 1. Cap nhat lai tt cua hoa don 
+        HoaDonResponse hd = hoaDonRepository.getAllByStatus().get(indexHoaDonSelected);
+        hd.setTenKhachHang(txtNguoiNhan.getText());
+        hd.setSdtNguoiNhan(txtSDT.getText());
+        hd.setDiaChiNguoiNhan(txtDiaChi.getText());
+        // Update vao CSDL 
+        hoaDonRepository.updateThongTin(hd);
+        // B2: Show lai table hoa don va xoa cac text o ben tay phai
+        showTableHoaDon(hoaDonRepository.getAllByStatus()); // LOAD NHUNG HOA DON DANG TRANG THAI CHO THANH TOAN
+        txtNgayTao.setText("");
+        txtNguoiNhan.setText("");
+        txtDiaChi.setText("");
+        txtSDT.setText("");
+        txtTongTien.setText("");
     }//GEN-LAST:event_btnThanhToanActionPerformed
 
     private void tbSanPhamMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbSanPhamMouseClicked
         int row = tbSanPham.getSelectedRow();
         // Lay ra doi tuong SPCT dang chon
         SanPhamChiTietResponse spctr = sanPhamChiTietRepository.getAll().get(row);
+        // Check ID/ Ma cua SPCT (cai dang chon)co ton tai trong bang HDCT cua hoa don dang chon hay k ?
+       
         // Lay ra hoa don dang selected 
         HoaDonResponse response = hoaDonRepository.getAllByStatus().get(indexHoaDonSelected);
 
@@ -427,11 +442,35 @@ public class ViewBanHang extends javax.swing.JFrame {
         // load laij table hdct & table sp 
         showTableSanPham(sanPhamChiTietRepository.getAll());
         showTableHoaDonChiTiet(hoaDonChiTietRepository.getAll(response.getId()));
+
+        // Cap nhat tt ben phai 
+        response.setTongTien(showTotalMoney(hoaDonChiTietRepository.getAll(response.getId())));
+        txtTongTien.setText(response.getTongTien() + ""); // update tong tien ben phai
+        // Update tong tien vao trong  CSDL cua bang Hoa don
+        hoaDonRepository.updateTongTien(response.getTongTien(), response.getId());
+        // show lai table hoa don
+        showTableHoaDon(hoaDonRepository.getAllByStatus());
     }//GEN-LAST:event_tbSanPhamMouseClicked
 
+    private Double showTotalMoney(ArrayList<HoaDonChiTietResponse> lists) {
+        double sum = 0;
+        for (HoaDonChiTietResponse hdct : lists) {
+            sum += hdct.getThanhTien();
+        }
+        return sum;
+    }
     private void tbHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbHoaDonMouseClicked
         indexHoaDonSelected = tbHoaDon.getSelectedRow();
-        // 
+        // Load tt phia ben phai
+        HoaDonResponse response = hoaDonRepository.getAllByStatus().get(indexHoaDonSelected);
+//        JOptionPane.showMessageDialog(this, response.getNgayTao());
+        txtDiaChi.setText(response.getDiaChiNguoiNhan());
+        txtNgayTao.setText(response.getNgayTao() + "");
+        txtNguoiNhan.setText(response.getDiaChiNguoiNhan());
+        txtSDT.setText(response.getSdtNguoiNhan());
+        txtTongTien.setText(response.getTongTien() + "");
+        // Load tt duoi table hoa don 
+        showTableHoaDonChiTiet(hoaDonChiTietRepository.getAll(response.getId()));
     }//GEN-LAST:event_tbHoaDonMouseClicked
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
